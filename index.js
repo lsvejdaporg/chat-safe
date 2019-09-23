@@ -1,4 +1,6 @@
-let c1 = 56;
-let c2 = 45;
-let soucet = c1 + c2;
-console.log("Soucet je " + soucet);
+const http = require('http');
+
+http.createServer((req, res) => {
+    res.writeHead(200, {"Content-type": "text/html"});
+    res.end("<html lang='cs'><head><meta charset='UTF8'></head><body>Čauvejs!</body></html>");
+}).listen(8888);
