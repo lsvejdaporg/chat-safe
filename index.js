@@ -1,5 +1,7 @@
 const http = require('http');
 
+const DNY_V_TYDNU = ["Neděle","Pondělí","Úterý","Středa","Čtvrtek","Pátek","Sobota"];
+
 let citac = 0;
 
 http.createServer((req, res) => {
@@ -20,6 +22,19 @@ http.createServer((req, res) => {
         res.writeHead(200, {"Content-type": "application/json"});
         let obj = {};
         obj.pocetVolani = citac;
+        res.end(JSON.stringify(obj));
+    } else if (req.url == "/denvtydnu") {
+        res.writeHead(200, {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin":"*"
+        });
+        let d = new Date();
+        let obj = {};
+        obj.systDatum = d;
+        obj.denVTydnuCiselne = d.getDay(); //0...nedele, 1...pondeli,...
+        obj.datumCesky = d.getDate() + "." + (d.getMonth()+1) + "." + d.getFullYear(); //leden...0, unor...1,...
+        obj.casCesky = d.getHours() + "." + d.getMinutes() + "." + d.getSeconds();
+        obj.denVTydnuCesky = DNY_V_TYDNU[d.getDay()];
         res.end(JSON.stringify(obj));
     } else {
         res.writeHead(200, {"Content-type": "text/html"});
