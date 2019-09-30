@@ -9,15 +9,18 @@
                 response.text().then(function(text) {
                     let obj = JSON.parse(text);
                     document.getElementById("den").innerHTML = obj.denVTydnuCesky;
-                    document.getElementById("datum").innerHTML = obj.datumCesky;
+                    document.getElementById("datumACas").innerHTML = obj.datumACasCeskyFormat;
                 });
             });
         }
+        function casovac() {
+            setInterval(nactiDatum, 1000);
+        }
     </script>
 </head>
-<body onload="nactiDatum()">
+<body onload="casovac()">
 
-Dnes je <b id="den"></b> <b id="datum"></b>.
+Dnes je <b id="den"></b> <b id="datumACas"></b>.
 
 </body>
 </html>
