@@ -3,12 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Moje single page application</title>
+    <script>
+        function nactiSvatky() {
+            fetch("http://localhost:8888/svatky").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("datum").innerHTML = obj.datum;
+                    document.getElementById("svatek").innerHTML = obj.svatek;
+                    document.getElementById("svatek2").innerHTML = obj.svatekZitra;
+                });
+            });
+        }
+    </script>
 </head>
-<body>
+<body onload="nactiSvatky()">
 
 <h1>appka</h1>
 
-Dnes je <span id="datum">...</span>, svátek má <span id="svatek">...</span>.
+Dnes je <span id="datum">...</span> a svátek má <span id="svatek">...</span>, zítra <span id="svatek2">...</span>.
 <br><br>
 
 <img src="bob.png">
