@@ -20,6 +20,7 @@ SVATKY[12] = [ "",'Iva', 'Blanka', 'Svatoslav', 'Barbora', 'Jitka', 'Mikuláš',
 
 
 let citac = 0;
+let msgs = new Array();
 
 function processStaticFiles(res, fileName) {
     fileName = fileName.substr(1); //zkopiruju od druheho znaku
@@ -104,6 +105,18 @@ http.createServer((req, res) => {
             d.setDate(d.getDate() + 1);
             obj.svatekZitra = SVATKY[d.getMonth()+1][d.getDate()];
         }
+        res.end(JSON.stringify(obj));
+    } else if (q.pathname == "/chat/listmsgs") { //msgs...globalni promenna typu pole deklarovana na zacatku tohoto zdroje
+        res.writeHead(200, {"Content-type": "application/json"});
+        let obj = {};
+        obj.messages = msgs;
+        res.end(JSON.stringify(obj));
+    } else if (q.pathname == "/chat/addmsg") {
+        res.writeHead(200, {"Content-type": "application/json"});
+        let obj = {};
+        obj.text = q.query["msg"];
+        obj.time = new Date();
+        msgs.push(obj);
         res.end(JSON.stringify(obj));
     } else {
         res.writeHead(200, {"Content-type": "text/html"});

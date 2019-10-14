@@ -5,6 +5,8 @@
     <title>Moje single page application</title>
     <script>
         function nactiSvatky() {
+            setInterval(seznamZprav, 1000); //po 1s se bude aktualizovat seznam zprav chatu
+
             //nastaveni vychozi hodnoty kalendare
             document.getElementById("kalendar").valueAsDate = new Date();
             svatkyPodleKalendare();
@@ -28,6 +30,26 @@
                 });
             });
         }
+        function posliZpravu() {
+            let chatmsg = document.getElementById("chatmsg").value;
+            fetch("http://localhost:8888/chat/addmsg?msg="+chatmsg).then(function(response) {
+                response.text().then(function(text) {
+                    // nemusim delat nic
+                });
+            });
+        }
+        function seznamZprav() {
+            fetch("http://localhost:8888/chat/listmsgs").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    let s = "";
+                    for (let o of obj.messages) {
+                        s = s + o.time + ": " + o.text + "<br>";
+                    }
+                    document.getElementById("chatmsgs").innerHTML = s;
+                });
+            });
+        }
     </script>
 </head>
 <body onload="nactiSvatky()">
@@ -36,6 +58,13 @@
 
 Dnes je <span id="datum">...</span> a svátek má <span id="svatek">...</span>, zítra <span id="svatek2">...</span>.
 <br><br>
+
+<h1>chat</h1>
+<div id="chatmsgs"></div>
+<input type="text" id="chatmsg"><input type="button" value="Odešli" onclick="posliZpravu()">
+
+<br><br>
+
 
 <input type="date" id="kalendar" onchange="svatkyPodleKalendare()"> má svátek <span id="svatek3">...</span>.
 <br><br>
