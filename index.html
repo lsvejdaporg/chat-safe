@@ -5,12 +5,26 @@
     <title>Moje single page application</title>
     <script>
         function nactiSvatky() {
+            //nastaveni vychozi hodnoty kalendare
+            document.getElementById("kalendar").valueAsDate = new Date();
+            svatkyPodleKalendare();
+
+            //dnesni a zitrejsi svatek
             fetch("http://localhost:8888/svatky").then(function(response) {
                 response.text().then(function(text) {
                     let obj = JSON.parse(text);
                     document.getElementById("datum").innerHTML = obj.datum;
                     document.getElementById("svatek").innerHTML = obj.svatek;
                     document.getElementById("svatek2").innerHTML = obj.svatekZitra;
+                });
+            });
+        }
+        function svatkyPodleKalendare() {
+            let d = document.getElementById("kalendar").valueAsDate;
+            fetch("http://localhost:8888/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("svatek3").innerHTML = obj.svatek;
                 });
             });
         }
@@ -21,6 +35,9 @@
 <h1>appka</h1>
 
 Dnes je <span id="datum">...</span> a svátek má <span id="svatek">...</span>, zítra <span id="svatek2">...</span>.
+<br><br>
+
+<input type="date" id="kalendar" onchange="svatkyPodleKalendare()"> má svátek <span id="svatek3">...</span>.
 <br><br>
 
 <img src="bob.png">

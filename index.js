@@ -1,6 +1,7 @@
 const http = require('http');
 const dateFormat = require('dateformat');
 const fs = require('fs');
+const url = require('url');
 
 const DNY_V_TYDNU = ["Neděle","Pondělí","Úterý","Středa","Čtvrtek","Pátek","Sobota"];
 const SVATKY = new Array();
@@ -43,31 +44,34 @@ function processStaticFiles(res, fileName) {
 }
 
 http.createServer((req, res) => {
-    if (req.url == "/") {
+    console.log(req.url);
+    let q = url.parse(req.url, true);
+    console.log(q.pathname);
+    if (q.pathname == "/") {
         citac++; //dtto citac=citac+1
         processStaticFiles(res, "/index.html");
         return;
     }
-    if (req.url.length - req.url.lastIndexOf(".") < 6) {
-        processStaticFiles(res, req.url);
+    if (q.pathname.length - q.pathname.lastIndexOf(".") < 6) {
+        processStaticFiles(res, q.pathname);
         return;
     }
-    if (req.url == "/jinastranka") {
+    if (q.pathname == "/jinastranka") {
         res.writeHead(200, {"Content-type": "text/html"});
         res.end("<html lang='cs'><head><meta charset='UTF8'></head><body>blablabla</body></html>");
-    } else if (req.url == "/jsondemo") {
+    } else if (q.pathname == "/jsondemo") {
         res.writeHead(200, {"Content-type": "application/json"});
         let obj = {};
         obj.jmeno = "Bob";
         obj.prijmeni = "Bobíček";
         obj.rokNarozeni = 2002;
         res.end(JSON.stringify(obj));
-    } else if (req.url == "/jsoncitac") {
+    } else if (q.pathname == "/jsoncitac") {
         res.writeHead(200, {"Content-type": "application/json"});
         let obj = {};
         obj.pocetVolani = citac;
         res.end(JSON.stringify(obj));
-    } else if (req.url == "/denvtydnu") {
+    } else if (q.pathname == "/denvtydnu") {
         res.writeHead(200, {
             "Content-type": "application/json",
             "Access-Control-Allow-Origin":"*"
@@ -82,17 +86,24 @@ http.createServer((req, res) => {
         obj.casCesky = d.getHours() + "." + d.getMinutes() + "." + d.getSeconds();
         obj.denVTydnuCesky = DNY_V_TYDNU[d.getDay()];
         res.end(JSON.stringify(obj));
-    } else if (req.url == "/svatky") {
+    } else if (q.pathname == "/svatky") {
         res.writeHead(200, {
             "Content-type": "application/json"
             //kdyz tady nedam "Access-Control-Allow-Origin":"*", tak sluzba bude pouzitelna jen na z me webove aplikace
         });
-        let d = new Date();
         let obj = {};
-        obj.datum = dateFormat(d, "dd.mm.yyyy");
-        obj.svatek = SVATKY[d.getMonth()+1][d.getDate()];
-        d.setDate(d.getDate() + 1);
-        obj.svatekZitra = SVATKY[d.getMonth()+1][d.getDate()];
+        if (q.query["m"] && q.query["d"] ) {
+            let d = q.query["d"];
+            let m = q.query["m"];
+            obj.datum = d+"."+m+".";
+            obj.svatek = SVATKY[m][d];
+        } else {
+            let d = new Date();
+            obj.datum = dateFormat(d, "dd.mm.yyyy");
+            obj.svatek = SVATKY[d.getMonth()+1][d.getDate()];
+            d.setDate(d.getDate() + 1);
+            obj.svatekZitra = SVATKY[d.getMonth()+1][d.getDate()];
+        }
         res.end(JSON.stringify(obj));
     } else {
         res.writeHead(200, {"Content-type": "text/html"});
