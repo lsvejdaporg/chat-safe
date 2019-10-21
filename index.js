@@ -1,13 +1,12 @@
 const http = require('http');
-const dateFormat = require('dateformat');
 const fs = require('fs');
 const url = require('url');
 const apiDenVTydnu = require('./api-denvtydnu').apiDenVTydnu;
 const apiSvatky = require('./api-svatky').apiSvatky;
+const apiChat = require('./api-chat').apiChat;
 
 
 let citac = 0;
-let msgs = new Array();
 
 function processStaticFiles(res, fileName) {
     fileName = fileName.substr(1); //zkopiruju od druheho znaku
@@ -40,11 +39,11 @@ http.createServer((req, res) => {
         processStaticFiles(res, "/index.html");
         return;
     }
-    if (q.pathname.length - q.pathname.lastIndexOf(".") < 6) {
+    if (q.pathname.indexOf(".") > -1 && q.pathname.length - q.pathname.lastIndexOf(".") < 6) {
         processStaticFiles(res, q.pathname);
         return;
     }
-    if (q.pathname == "/jinastranka") {
+    if (q.pathname == "/kuk") {
         res.writeHead(200, {"Content-type": "text/html"});
         res.end("<html lang='cs'><head><meta charset='UTF8'></head><body>blablabla</body></html>");
     } else if (q.pathname == "/jsondemo") {
@@ -63,18 +62,8 @@ http.createServer((req, res) => {
         apiDenVTydnu(req, res);
     } else if (q.pathname == "/svatky") {
         apiSvatky(req, res);
-    } else if (q.pathname == "/chat/listmsgs") { //msgs...globalni promenna typu pole deklarovana na zacatku tohoto zdroje
-        res.writeHead(200, {"Content-type": "application/json"});
-        let obj = {};
-        obj.messages = msgs;
-        res.end(JSON.stringify(obj));
-    } else if (q.pathname == "/chat/addmsg") {
-        res.writeHead(200, {"Content-type": "application/json"});
-        let obj = {};
-        obj.text = q.query["msg"];
-        obj.time = new Date();
-        msgs.push(obj);
-        res.end(JSON.stringify(obj));
+    } else if (q.pathname.startsWith("/chat/")) {
+        apiChat(req, res);
     } else {
         res.writeHead(200, {"Content-type": "text/html"});
         res.end("<html lang='cs'><head><meta charset='UTF8'></head><body>Počet volání: " +citac + "</body></html>");
