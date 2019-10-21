@@ -2,8 +2,8 @@ const http = require('http');
 const dateFormat = require('dateformat');
 const fs = require('fs');
 const url = require('url');
+const apiDenVTydnu = require('./api-denvtydnu').apiDenVTydnu;
 
-const DNY_V_TYDNU = ["Neděle","Pondělí","Úterý","Středa","Čtvrtek","Pátek","Sobota"];
 const SVATKY = new Array();
 SVATKY[1] = [ "", 'Nový rok', 'Karina', 'Radmila', 'Diana', 'Dalimil', 'Tři králové', 'Vilma', 'Čestmír', 'Vladan', 'Břetislav', 'Bohdana', 'Pravoslav', 'Edita', 'Radovan', 'Alice', 'Ctirad', 'Drahoslav', 'Vladislav', 'Doubravka', 'Ilona', 'Běla', 'Slavomír', 'Zdeněk', 'Milena', 'Miloš', 'Zora', 'Ingrid', 'Otýlie', 'Zdislava', 'Robin', 'Marika'];
 SVATKY[2] = [ "", 'Hynek', 'Nela a Hromnice', 'Blažej', 'Jarmila', 'Dobromila', 'Vanda', 'Veronika', 'Milada', 'Apolena', 'Mojmír', 'Božena', 'Slavěna', 'Věnceslav', 'Valentýn', 'Jiřina', 'Ljuba', 'Miloslava', 'Gizela', 'Patrik', 'Oldřich', 'Lenka', 'Petr', 'Svatopluk', 'Matěj', 'Liliana', 'Dorota', 'Alexandr', 'Lumír', 'Horymír'];
@@ -73,20 +73,7 @@ http.createServer((req, res) => {
         obj.pocetVolani = citac;
         res.end(JSON.stringify(obj));
     } else if (q.pathname == "/denvtydnu") {
-        res.writeHead(200, {
-            "Content-type": "application/json",
-            "Access-Control-Allow-Origin":"*"
-        });
-        let d = new Date();
-        let obj = {};
-        obj.systDatum = d;
-        obj.denVTydnuCiselne = d.getDay(); //0...nedele, 1...pondeli,...
-        obj.datumCesky = d.getDate() + "." + (d.getMonth()+1) + "." + d.getFullYear(); //leden...0, unor...1,...
-        obj.datumCeskyFormat = dateFormat(d, "dd.mm.yyyy");
-        obj.datumACasCeskyFormat = dateFormat(d, "dd.mm.yyyy HH:MM:ss");
-        obj.casCesky = d.getHours() + "." + d.getMinutes() + "." + d.getSeconds();
-        obj.denVTydnuCesky = DNY_V_TYDNU[d.getDay()];
-        res.end(JSON.stringify(obj));
+        apiDenVTydnu(req, res);
     } else if (q.pathname == "/svatky") {
         res.writeHead(200, {
             "Content-type": "application/json"
