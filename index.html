@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Moje single page application</title>
     <script>
+        const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
         function nactiSvatky() {
             setInterval(seznamZprav, 1000); //po 1s se bude aktualizovat seznam zprav chatu
 
@@ -12,7 +13,7 @@
             svatkyPodleKalendare();
 
             //dnesni a zitrejsi svatek
-            fetch("http://localhost:8888/svatky").then(function(response) {
+            fetch(HOST+"/svatky").then(function(response) {
                 response.text().then(function(text) {
                     let obj = JSON.parse(text);
                     document.getElementById("datum").innerHTML = obj.datum;
@@ -23,7 +24,7 @@
         }
         function svatkyPodleKalendare() {
             let d = document.getElementById("kalendar").valueAsDate;
-            fetch("http://localhost:8888/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
+            fetch(HOST+"/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
                 response.text().then(function(text) {
                     let obj = JSON.parse(text);
                     document.getElementById("svatek3").innerHTML = obj.svatek;
@@ -32,14 +33,14 @@
         }
         function posliZpravu() {
             let chatmsg = document.getElementById("chatmsg").value;
-            fetch("http://localhost:8888/chat/addmsg?msg="+chatmsg).then(function(response) {
+            fetch(HOST+"/chat/addmsg?msg="+chatmsg).then(function(response) {
                 response.text().then(function(text) {
                     // nemusim delat nic
                 });
             });
         }
         function seznamZprav() {
-            fetch("http://localhost:8888/chat/listmsgs").then(function(response) {
+            fetch(HOST+"/chat/listmsgs").then(function(response) {
                 response.text().then(function(text) {
                     let obj = JSON.parse(text);
                     let s = "";
