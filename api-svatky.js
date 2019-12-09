@@ -18,7 +18,6 @@ SVATKY[12] = [ "",'Iva', 'Blanka', 'Svatoslav', 'Barbora', 'Jitka', 'Mikuláš',
 exports.apiSvatky = function (req, res) {
     res.writeHead(200, {
         "Content-type": "application/json",
-        "Access-Control-Allow-Origin":"*",
     });
     let q = url.parse(req.url, true);
     let obj = {};

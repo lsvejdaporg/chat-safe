@@ -5,6 +5,7 @@
     <title>Moje single page application</title>
     <script>
         const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
+        //const HOST = "http://localhost:8080";
         function nactiSvatky() {
             setInterval(seznamZprav, 1000); //po 1s se bude aktualizovat seznam zprav chatu
 
@@ -33,7 +34,12 @@
         }
         function posliZpravu() {
             let chatmsg = document.getElementById("chatmsg").value;
-            fetch(HOST+"/chat/addmsg?msg="+chatmsg).then(function(response) {
+            let body = {};
+            body.msg = chatmsg;
+            let options = {};
+            options.method = "POST";
+            options.body = JSON.stringify(body);
+            fetch(HOST+"/chat/addmsg", options).then(function(response) {
                 response.text().then(function(text) {
                     // nemusim delat nic
                 });
