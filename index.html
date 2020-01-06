@@ -7,12 +7,6 @@
         const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
         //const HOST = "http://localhost:8080";
         function nactiSvatky() {
-            setInterval(seznamZprav, 1000); //po 1s se bude aktualizovat seznam zprav chatu
-
-            //nastaveni vychozi hodnoty kalendare
-            document.getElementById("kalendar").valueAsDate = new Date();
-            svatkyPodleKalendare();
-
             //dnesni a zitrejsi svatek
             fetch(HOST+"/svatky").then(function(response) {
                 response.text().then(function(text) {
@@ -20,15 +14,6 @@
                     document.getElementById("datum").innerHTML = obj.datum;
                     document.getElementById("svatek").innerHTML = obj.svatek;
                     document.getElementById("svatek2").innerHTML = obj.svatekZitra;
-                });
-            });
-        }
-        function svatkyPodleKalendare() {
-            let d = document.getElementById("kalendar").valueAsDate;
-            fetch(HOST+"/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
-                response.text().then(function(text) {
-                    let obj = JSON.parse(text);
-                    document.getElementById("svatek3").innerHTML = obj.svatek;
                 });
             });
         }
@@ -57,9 +42,68 @@
                 });
             });
         }
+        function registrovat() {
+            let body = {};
+            body.name = document.getElementById("reg-name").value;
+            body.login = document.getElementById("reg-login").value;
+            body.password = document.getElementById("reg-password").value;
+            body.email = document.getElementById("reg-email").value;
+            let options = {};
+            options.method = "POST";
+            options.body = JSON.stringify(body);
+            fetch(HOST+"/users/add", options).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        alert(obj.error);
+                    } else {
+                        ukazDivPrihl();
+                    }
+                });
+            });
+        }
+        function prihlasit() {
+            let body = {};
+            body.login = document.getElementById("login").value;
+            body.password = document.getElementById("password").value;
+            let options = {};
+            options.method = "POST";
+            options.body = JSON.stringify(body);
+            fetch(HOST+"/users/login", options).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    if (obj.error) {
+                        alert(obj.error);
+                    } else {
+                        document.getElementById("myname").innerHTML = obj.name;
+                        setInterval(seznamZprav, 1000); //po 1s se bude aktualizovat seznam zprav chatu
+                        ukazDivChat();
+                    }
+                });
+            });
+        }
+        function ukazDivPrihl() {
+            document.getElementById("div_prihl").style.display = "block";
+            document.getElementById("div_reg").style.display = "none";
+            document.getElementById("div_chat").style.display = "none";
+        }
+        function ukazDivReg() {
+            document.getElementById("div_prihl").style.display = "none";
+            document.getElementById("div_reg").style.display = "block";
+            document.getElementById("div_chat").style.display = "none";
+        }
+        function ukazDivChat() {
+            document.getElementById("div_prihl").style.display = "none";
+            document.getElementById("div_reg").style.display = "none";
+            document.getElementById("div_chat").style.display = "block";
+        }
+        function poNacteni() {
+            nactiSvatky();
+            ukazDivPrihl();
+        }
     </script>
 </head>
-<body onload="nactiSvatky()">
+<body onload="poNacteni()">
 
 <h1>appka</h1>
 
@@ -67,16 +111,31 @@ Dnes je <span id="datum">...</span> a svátek má <span id="svatek">...</span>, 
 <br><br>
 
 <h1>chat</h1>
+
+<div id="div_prihl" style="background-color: aquamarine">
+    <h3>Přihlášení</h3>
+    Přihlašovací jméno: <input type="text" id="login"><br>
+    Heslo: <input type="password" id="password"><br>
+    <input type="button" value="Přihlásit" onclick="prihlasit()">
+    <input type="button" value="Registrovat..." onclick="ukazDivReg()">
+</div>
+
+<div id="div_reg" style="background-color: coral">
+    <h3>Registrace</h3>
+    Jméno nebo přezdívka: <input type="text" id="reg-name"><br>
+    Přihlašovací jméno: <input type="text" id="reg-login"><br>
+    Heslo: <input type="password" id="reg-password"><br>
+    Zopakujte heslo: <input type="password" id="reg-password2"><br>
+    E-mail: <input type="email" id="reg-email"><br>
+    <input type="button" value="Registrovat" onclick="registrovat()">
+    <input type="button" value="Storno" onclick="ukazDivPrihl()">
+</div>
+
+<div id="div_chat" style="background-color: greenyellow">
 <div id="chatmsgs"></div>
-<input type="text" id="chatmsg"><input type="button" value="Odešli" onclick="posliZpravu()">
+<b id="myname">...</b>:<input type="text" id="chatmsg"><input type="button" value="Odešli" onclick="posliZpravu()">
+</div>
 
-<br><br>
-
-
-<input type="date" id="kalendar" onchange="svatkyPodleKalendare()"> má svátek <span id="svatek3">...</span>.
-<br><br>
-
-<img src="bob.png">
 
 </body>
 </html>

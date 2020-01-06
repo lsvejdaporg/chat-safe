@@ -4,6 +4,7 @@ const url = require('url');
 const apiDenVTydnu = require('./api-denvtydnu').apiDenVTydnu;
 const apiSvatky = require('./api-svatky').apiSvatky;
 const apiChat = require('./api-chat').apiChat;
+const apiUsers = require('./api-users').apiUsers;
 
 const PORT = 8080;
 let citac = 0;
@@ -64,6 +65,8 @@ http.createServer((req, res) => {
         apiSvatky(req, res);
     } else if (q.pathname.startsWith("/chat/")) {
         apiChat(req, res);
+    } else if (q.pathname.startsWith("/users/")) {
+        apiUsers(req, res);
     } else {
         res.writeHead(200, {"Content-type": "text/html"});
         res.end("<html lang='cs'><head><meta charset='UTF8'></head><body>Počet volání: " +citac + "</body></html>");
