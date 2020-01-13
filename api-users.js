@@ -1,8 +1,24 @@
 const url = require('url');
 const Entities = require('html-entities').AllHtmlEntities;
 const entities = new Entities();
+const fs = require('fs');
+const crypto = require("crypto");
 
 let users = new Array();
+if (fs.existsSync("users.json")) {
+    users = JSON.parse(fs.readFileSync("users.json"));
+}
+
+function zamixujHeslo(pw) {
+    // let mixPw = crypto.createHash("md5").update(pw).digest("hex");
+    // mixPw = mixPw.split("").reverse().join("");
+    // for (let i=0; i < 10; i++) {
+    //     mixPw = crypto.createHash("md5").update(mixPw).digest("hex");
+    // }
+    let salt = pw.split("").reverse().join(""); //pozpatku
+    let mixPw = crypto.createHmac("sha256", salt).update(pw).digest("hex");
+    return mixPw;
+}
 
 exports.apiUsers = function (req, res) {
     let q = url.parse(req.url, true);
@@ -28,12 +44,24 @@ exports.apiUsers = function (req, res) {
                 res.writeHead(200, {
                     "Content-type": "application/json"
                 });
-                let obj = {};
-                obj.name = entities.encode(body.name);
+                let obj = {}
                 obj.login = entities.encode(body.login);
-                obj.password = entities.encode(body.password);
-                obj.email = entities.encode(body.email);
-                users.push(obj);
+                let userExists = false;
+                for (let u of users) {
+                    if (u.login === obj.login) {
+                        userExists = true;
+                        break;
+                    }
+                }
+                if (userExists) {
+                    obj.error = "User already exists.";
+                } else {
+                    obj.name = entities.encode(body.name);
+                    obj.password = zamixujHeslo(entities.encode(body.password));
+                    obj.email = entities.encode(body.email);
+                    users.push(obj);
+                    fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
+                }
                 res.end(JSON.stringify(obj));
             };
         });
