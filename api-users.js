@@ -54,20 +54,15 @@ exports.apiUsers = function (req, res) {
         });
         let obj = {};
         let login = req.parameters.login;
-        let found = false;
+        obj.error = "invalid login or password";
         for (let u of users) {
             if (u.login === login) {
-                found = true;
                 if (u.password === zamixujHeslo(req.parameters.password)) {
                     obj.name = u.name;
-                } else {
-                    obj.error = "invalid password";
+                    obj.error = null; //undefined
                 }
                 break; //vyskoceni z cyklu
             }
-        }
-        if (!found) {
-            obj.error = "invalid login";
         }
         res.end(JSON.stringify(obj));
     }
